@@ -33,7 +33,7 @@ class Cliente:
     def validar_cliente(self):
         #Validación estricta para evitar datos erróneos.
         # Convertimos a texto por si ingresan números puros y validamos que sean dígitos
-        if not str(self._cedula).isdigit():
+        if not str(self.__cedula).isdigit():
             raise ValueError("La cédula debe contener únicamente números.")
         if "@" not in self.correo:
             raise ValueError("El correo electrónico no es válido (falta '@').")
