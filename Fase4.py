@@ -1,3 +1,4 @@
+"""
 PROYECTO: Sistema Integral de Gestión de Clientes, Servicios y Reservas
 EMPRESA: Software FJ
 CURSO: Programación (213023) - Fase 4 - Práctica Simulada
@@ -59,8 +60,22 @@ class ReservaInvalidaException(SoftwareFJException):
 
 
 # SECCIÓN 3: CLASE CLIENTE (Encapsulamiento estricto de datos)
+# SECCIÓN 3: CLASE ABSTRACTA ENTIDAD
 
-class Cliente:
+class Entidad(ABC):
+    """
+    Clase abstracta que establece la estructura
+    general de las entidades del sistema.
+    """
+
+    @abstractmethod
+    def mostrar_datos(self) -> str:
+        """Obliga a las clases hijas a presentar sus datos."""
+        pass
+
+
+# SECCIÓN 4: CLASE CLIENTE (Encapsulamiento y herencia)
+class Cliente(Entidad):
     def __init__(self, documento: str, nombre: str, correo: str):
         # 1. Variables privadas con doble guion bajo (nadie las puede modificar por fuera directamente)
         self.__documento = ""
@@ -156,8 +171,8 @@ class Servicio(ABC):
         "Regla base: el nombre no puede ser nulo y la tarifa debe ser mayor a cero."
         if not self.nombre or not isinstance(self.nombre, str):
             raise ParametroInvalidoException("El nombre del servicio no es válido.")
-        if self.tarifa_base <= 0:
-            raise ParametroInvalidoException("La tarifa base debe ser un valor positivo mayor a cero.")
+        if not isinstance(self.tarifa_base, (int, float)) or isinstance(self.tarifa_base, bool) or self.tarifa_base <= 0:
+            raise ParametroInvalidoException("La tarifa base debe ser un valor numérico positivo mayor a cero.")
 
 
 # 2. Clase Hija 1: Reserva de Salas
@@ -168,14 +183,26 @@ class ReservaSala(Servicio):
         # super().__init__ envía el nombre y la tarifa al constructor del padre (Servicio)
         super().__init__(nombre, tarifa_base)
 
+    
     def validar_parametros(self):
         # Valida primero las reglas del padre
         super().validar_parametros()
-        # Valida reglas propias de la sala
-        if self.capacidad <= 0:
-            raise ParametroInvalidoException("La capacidad de la sala debe ser mayor a 0 personas.")
-        if self.horas <= 0:
-            raise ParametroInvalidoException("Las horas reservadas deben ser mayores a 0.")
+
+        # Valida que la capacidad sea un entero positivo
+        if not isinstance(self.capacidad, int) or isinstance(self.capacidad, bool) or self.capacidad <= 0:
+            raise ParametroInvalidoException("La capacidad de la sala debe ser un entero mayor a 0 personas.")
+
+        # Valida que las horas sean un entero positivo
+        if not isinstance(self.horas, int) or isinstance(self.horas, bool) or self.horas <= 0:
+            raise ParametroInvalidoException("Las horas reservadas deben ser un entero mayor a 0.")
+
+        
+        
+        
+        
+            
+        
+        
 
     def calcular_costo(self, descuento: float = 0.0, impuesto: float = 0.19) -> float:
         # Polimorfismo: cobra las horas base más un suplemento de $5.000 por cada persona
@@ -195,10 +222,22 @@ class AlquilerEquipo(Servicio):
         self.cantidad = cantidad  # Cantidad de computadores o dispositivos
         super().__init__(nombre, tarifa_base)
 
+    
     def validar_parametros(self):
+        # Valida primero las reglas de la clase padre
         super().validar_parametros()
-        if self.dias <= 0 or self.cantidad <= 0:
-            raise ParametroInvalidoException("Los días y la cantidad de equipos deben ser enteros mayores a cero.")
+
+        # Valida que los días sean un entero positivo
+        if not isinstance(self.dias, int) or isinstance(self.dias, bool) or self.dias <= 0:
+            raise ParametroInvalidoException("Los días de alquiler deben ser un entero mayor a cero.")
+
+        # Valida que la cantidad de equipos sea un entero positivo
+        if not isinstance(self.cantidad, int) or isinstance(self.cantidad, bool) or self.cantidad <= 0:
+            raise ParametroInvalidoException("La cantidad de equipos debe ser un entero mayor a cero.")
+
+        
+        
+            
 
     def calcular_costo(self, descuento: float = 0.0, impuesto: float = 0.19) -> float:
         # Polimorfismo: multiplica la tarifa diaria por el total de días y total de equipos
@@ -212,17 +251,39 @@ class AlquilerEquipo(Servicio):
 
 # 4. Clase Hija 3: Asesoría Especializada
 class AsesoriaEspecializada(Servicio):
+    
     def __init__(self, nombre: str, tarifa_base: float, nivel_experto: str, horas: int):
-        self.nivel_experto = nivel_experto.lower().strip()  # junior, senior o master
-        self.horas = horas                                  # Horas de consultoría
+        if not isinstance(nivel_experto, str):
+            raise ParametroInvalidoException("El nivel de experto debe ser texto.")
+
+        self.nivel_experto = nivel_experto.lower().strip()
+        self.horas = horas
         super().__init__(nombre, tarifa_base)
 
+        
+    
+
+        
+
     def validar_parametros(self):
+        # Valida primero las reglas de la clase padre
         super().validar_parametros()
-        if self.horas <= 0:
-            raise ParametroInvalidoException("Las horas de asesoría deben ser mayores a 0.")
+
+        # Valida que las horas sean un entero positivo
+        if not isinstance(self.horas, int) or isinstance(self.horas, bool) or self.horas <= 0:
+            raise ParametroInvalidoException("Las horas de asesoría deben ser un entero mayor a cero.")
+
+        # Valida el nivel de experiencia
         if self.nivel_experto not in ["junior", "senior", "master"]:
-            raise ParametroInvalidoException("Nivel de experto inválido. Debe ser: junior, senior o master.")
+            raise ParametroInvalidoException("Nivel de experto inválido. Debe ser junior, senior o master.")
+
+
+    
+        
+        
+            
+        
+           
 
     def calcular_costo(self, descuento: float = 0.0, impuesto: float = 0.19) -> float:
         # Polimorfismo: aplica multiplicadores de experiencia
@@ -258,3 +319,91 @@ class AsesoriaEspecializada(Servicio):
 
 
 
+
+# ============================================================
+# SECCIÓN 5: EJECUCIÓN PRINCIPAL Y PRUEBAS DEL SISTEMA
+# ============================================================
+
+def main():
+    print("\n" + "=" * 65)
+    print(" SISTEMA INTEGRAL DE GESTIÓN - SOFTWARE FJ")
+    print("=" * 65)
+
+    try:
+        # 1. CREACIÓN Y REGISTRO DEL CLIENTE
+        print("\n--- 1. REGISTRO DE CLIENTE ---")
+
+        cliente = Cliente(
+            documento="1234567890",
+            nombre="Carlos Perez",
+            correo="carlos@example.com"
+        )
+
+        print(cliente.mostrar_datos())
+
+        # 2. RESERVA DE SALA
+        print("\n--- 2. RESERVA DE SALA ---")
+
+        sala = ReservaSala(
+            nombre="Sala de Conferencias",
+            tarifa_base=25000,
+            capacidad=20,
+            horas=3
+        )
+
+        print(sala.describir())
+        print(f"Costo total: ${sala.calcular_costo():,.2f}")
+
+        # 3. ALQUILER DE EQUIPOS
+        print("\n--- 3. ALQUILER DE EQUIPOS ---")
+
+        alquiler = AlquilerEquipo(
+            nombre="Computadores portátiles",
+            tarifa_base=15000,
+            dias=2,
+            cantidad=5
+        )
+
+        print(alquiler.describir())
+        print(f"Costo total: ${alquiler.calcular_costo():,.2f}")
+
+        # 4. ASESORÍA ESPECIALIZADA
+        print("\n--- 4. ASESORÍA ESPECIALIZADA ---")
+
+        asesoria = AsesoriaEspecializada(
+            nombre="Consultoría en Telecomunicaciones",
+            tarifa_base=50000,
+            nivel_experto="senior",
+            horas=2
+        )
+
+        print(asesoria.describir())
+        print(f"Costo total: ${asesoria.calcular_costo():,.2f}")
+
+        # 5. PRUEBA DE DESCUENTOS
+        print("\n--- 5. APLICACIÓN DE DESCUENTOS ---")
+
+        costo_descuento = asesoria.calcular_costo(descuento=0.10)
+
+        print(f"Costo con descuento del 10%: ${costo_descuento:,.2f}")
+
+        registrar_evento("Pruebas principales ejecutadas correctamente.")
+
+    except SoftwareFJException as error:
+        print(f"\nERROR CONTROLADO: {error}")
+        registrar_error(str(error))
+
+    except Exception as error:
+        print(f"\nERROR INESPERADO: {error}")
+        registrar_error(str(error))
+
+    finally:
+        print("\n" + "=" * 65)
+        print(" FINALIZACIÓN DE LAS PRUEBAS DEL SISTEMA")
+        print("=" * 65)
+
+
+# PUNTO DE ENTRADA DEL PROGRAMA
+if __name__ == "__main__":
+    main()
+    
