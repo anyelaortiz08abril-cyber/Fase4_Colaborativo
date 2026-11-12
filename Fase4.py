@@ -296,7 +296,196 @@ class AsesoriaEspecializada(Servicio):
         return f"Asesoría '{self.nombre}' de nivel {self.nivel_experto.upper()} por {self.horas} hora(s)."
 
 
+#SECCION 5: CLASE DE RESERVA
+class Reserva:
+    def __init__(self, id_reserva: str, cliente: Cliente, servicio: Servicio):
+        #Guaramos el codigo de la reserva, el cliente y el servicio elegido
+        self.__id_reserva = id_reserva
+        self.__cliente = cliente
+        self.__servicio = servicio
 
+        #Toda reserva dira en estado "PENDIENTE,CONFIRMADA, CANCELADA" por defecto
+        self.__estado = "PENDIENTE"  
+
+    def get_id_reserva(self) -> str:
+        return self.__id_reserva
+
+    def get_estado(self) -> str:
+        return self.__estado
+
+    def confirmar(self): #Metodo para cambiar la reserva de pendiente a confirmada de forma segura
+        try:
+            #Validación lógica 1: Si ya fue cancelada, no se puede confirmar
+            if self.__estado == "CANCELADA":
+                raise ReservaInvalidaException(f"La reserva {self.__id_reserva} está cancelada y no se puede confirmar.")
+
+            # Validación lógica 2: Si ya estaba confirmada antes, avisamos
+            if self.__estado == "CONFIRMADA":
+                raise ReservaInvalidaException(f"La reserva {self.__id_reserva} ya estaba confirmada previamente.")
+            self.__estado = "CONFIRMADA"
+        except ReservaInvalidaException as e:
+            #Si ocurre un error de negocio controlado, lo guardamos en los logs y lo lanzamos
+            registrar_error(f"Fallo al confirmar {self.__id_reserva}: {e}")
+            raise
+        except Exception as ex:
+
+            # Si ocurre un error totalmente inesperado, usamos el ENCADENAMIENTO DE EXCEPCIONES
+            registrar_error(f"Error crítico al confirmar {self.__id_reserva}: {ex}")
+            # Encadenamiento de excepciones exigido por la rúbrica
+            raise ReservaInvalidaException("Error crítico en confirmación.") from ex
+        else:
+            #Se ejecuta únicamente si TODO salió bien en el try
+            registrar_evento(f"Reserva {self.__id_reserva} confirmada con éxito para {self.__cliente.get_nombre()}.")
+        finally:
+            registrar_evento(f"Fin de proceso de confirmación para {self.__id_reserva}.")
+
+    def cancelar(self):
+        try:
+            if self.__estado == "CANCELADA":
+                raise ReservaInvalidaException(f"La reserva {self.__id_reserva} ya se encontraba cancelada.")
+            self.__estado = "CANCELADA"
+            registrar_evento(f"Reserva {self.__id_reserva} cancelada correctamente.")
+        except ReservaInvalidaException as e:
+            registrar_error(f"Aviso al cancelar {self.__id_reserva}: {e}")
+            raise
+
+    def procesar(self, descuento: float = 0.0) -> float:  #Metodo para procesar el pago 
+        costo_total = 0.0
+        try:
+            if self.__estado == "CANCELADA":
+                raise ReservaInvalidaException(f"No se puede procesar pago de una reserva cancelada ({self.__id_reserva}).")
+            
+            # Polimorfismo aplicado al servicio
+            costo_total = self.__servicio.calcular_costo(descuento=descuento)
+        except ParametroInvalidoException as pie:
+            registrar_error(f"Parámetro erróneo calculando costos en {self.__id_reserva}: {pie}")
+            raise
+        except ReservaInvalidaException as rie:
+            registrar_error(f"Flujo de reserva inválido en {self.__id_reserva}: {rie}")
+            raise
+        except Exception as e:
+            registrar_error(f"Error inesperado procesando {self.__id_reserva}: {e}")
+            raise ReservaInvalidaException("Fallo en transacción financiera.") from e
+        else:
+            registrar_evento(f"Cálculo financiero exitoso para {self.__id_reserva}. Total: ${costo_total}")
+        finally:
+            registrar_evento(f"Cierre de auditoría financiera para {self.__id_reserva}.")
+        
+        return costo_total
+
+    def mostrar_reserva(self) -> str:
+        return (f"[{self.__id_reserva}] {self.__cliente.mostrar_datos()} | "
+                f"{self.__servicio.describir()} | Estado: {self.__estado}")
+
+
+
+# SECCIÓN 6: EJECUCIÓN PRINCIPAL Y PRUEBAS DEL SISTEMA
+
+def main():
+    print("\n" + "=" * 65)
+    print(" SISTEMA INTEGRAL DE GESTIÓN - SOFTWARE FJ")
+    print("=" * 65)
+
+    try:
+        # 1. CREACIÓN Y REGISTRO DEL CLIENTE
+        print("\n--- 1. REGISTRO DE CLIENTE ---")
+
+        cliente = Cliente(
+            documento="1234567890",
+            nombre="Carlos Perez",
+            correo="carlos@example.com"
+        )
+
+        print(cliente.mostrar_datos())
+
+        # 2. RESERVA DE SALA
+        print("\n--- 2. RESERVA DE SALA ---")
+
+        sala = ReservaSala(
+            nombre="Sala de Conferencias",
+            tarifa_base=25000,
+            capacidad=20,
+            horas=3
+        )
+
+        print(sala.describir())
+        print(f"Costo total: ${sala.calcular_costo():,.2f}")
+
+        # 3. ALQUILER DE EQUIPOS
+        print("\n--- 3. ALQUILER DE EQUIPOS ---")
+
+        alquiler = AlquilerEquipo(
+            nombre="Computadores portátiles",
+            tarifa_base=15000,
+            dias=2,
+            cantidad=5
+        )
+
+        print(alquiler.describir())
+        print(f"Costo total: ${alquiler.calcular_costo():,.2f}")
+
+        # 4. ASESORÍA ESPECIALIZADA
+        print("\n--- 4. ASESORÍA ESPECIALIZADA ---")
+
+        asesoria = AsesoriaEspecializada(
+            nombre="Consultoría en Telecomunicaciones",
+            tarifa_base=50000,
+            nivel_experto="senior",
+            horas=2
+        )
+
+        print(asesoria.describir())
+        print(f"Costo total: ${asesoria.calcular_costo():,.2f}")
+
+        # 5. PRUEBA DE DESCUENTOS
+        print("\n--- 5. APLICACIÓN DE DESCUENTOS ---")
+
+        costo_descuento = asesoria.calcular_costo(descuento=0.10)
+
+        print(f"Costo con descuento del 10%: ${costo_descuento:,.2f}")
+
+        registrar_evento("Pruebas principales ejecutadas correctamente.")
+
+        # 6. Gestion de reserva
+        print("\n--- 6. GESTIÓN DE RESERVA ---")
+        
+        reserva = Reserva("RES-999", cliente, sala)
+        reserva.confirmar()
+        costo_reserva = reserva.procesar(descuento=0.10)
+        print(reserva.mostrar_reserva())
+        print(f"Costo final de la reserva con descuento: ${costo_reserva:,.2f}")  
+
+    except SoftwareFJException as error:
+        print(f"\nERROR CONTROLADO: {error}")
+        registrar_error(str(error))
+
+    except Exception as error:
+        print(f"\nERROR INESPERADO: {error}")
+        registrar_error(str(error))
+
+    finally:
+        print("\n" + "=" * 65)
+        print(" FINALIZACIÓN DE LAS PRUEBAS DEL SISTEMA")
+        print("=" * 65)
+
+
+
+
+
+
+#ZONA PARA EL COMPAÑERO HECTOR (Jturing589): IMPORTANTEEE!!
+# Por favor agregar aquí las 5 simulaciones de error o invalidas
+# (ej. horas negativas, expertos falsos o cobros a reservas canceladas).
+
+
+
+
+
+
+
+# PUNTO DE ENTRADA DEL PROGRAMA
+if __name__ == "__main__":
+    main()
 
 
 
