@@ -473,126 +473,93 @@ def main():
 
 
 
-#ZONA PARA EL COMPAÑERO HECTOR (Jturing589): IMPORTANTEEE!!
-# Por favor agregar aquí las 5 simulaciones de error o invalidas
-# (ej. horas negativas, expertos falsos o cobros a reservas canceladas).
-
-
-
-
-
-
-
-# PUNTO DE ENTRADA DEL PROGRAMA
-if __name__ == "__main__":
-    main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# ============================================================
-# SECCIÓN 5: EJECUCIÓN PRINCIPAL Y PRUEBAS DEL SISTEMA
-# ============================================================
-
-def main():
+    # ------------------------------------------------------------
+    # PARTE 2: SIMULACIONES DE ERROR Y VALIDACIONES ROBUSTAS
+    # APORTE DE: HÉCTOR JULIO ACOSTA CORTÉS (Jturing589)
+    # ------------------------------------------------------------
     print("\n" + "=" * 65)
-    print(" SISTEMA INTEGRAL DE GESTIÓN - SOFTWARE FJ")
+    print(" SIMULACIONES DE ERROR Y VALIDACIÓN DE EXCEPCIONES")
+    print(" APORTE INDIVIDUAL: HÉCTOR JULIO ACOSTA CORTÉS (Jturing589)")
     print("=" * 65)
 
+    # CASO DE ERROR 1: Correo electrónico inválido (falta de formato / arroba)
+    print("\n--- ERROR 1: Registro de cliente con correo inválido ---")
     try:
-        # 1. CREACIÓN Y REGISTRO DEL CLIENTE
-        print("\n--- 1. REGISTRO DE CLIENTE ---")
-
-        cliente = Cliente(
-            documento="1234567890",
-            nombre="Carlos Perez",
-            correo="carlos@example.com"
+        cliente_erroneo = Cliente(
+            documento="1022936241",
+            nombre="Cliente Prueba Error",
+            correo="correo_invalido_sin_arroba.com"
         )
+    except ClienteInvalidoException as cie:
+        print(f"[EXCEPCIÓN CAPTURADA EXITOSAMENTE]: {cie}")
+        registrar_error(f"Simulación Error 1: {cie}")
+    except Exception as e:
+        print(f"[ERROR INESPERADO]: {e}")
 
-        print(cliente.mostrar_datos())
-
-        # 2. RESERVA DE SALA
-        print("\n--- 2. RESERVA DE SALA ---")
-
-        sala = ReservaSala(
-            nombre="Sala de Conferencias",
-            tarifa_base=25000,
-            capacidad=20,
-            horas=3
+    # CASO DE ERROR 2: Horas negativas en Reserva de Sala
+    print("\n--- ERROR 2: Creación de sala con horas negativas ---")
+    try:
+        sala_invalida = ReservaSala(
+            nombre="Sala Creativa",
+            tarifa_base=30000,
+            capacidad=10,
+            horas=-5  # Parámetro numérico ilógico
         )
+    except ParametroInvalidoException as pie:
+        print(f"[EXCEPCIÓN CAPTURADA EXITOSAMENTE]: {pie}")
+        registrar_error(f"Simulación Error 2: {pie}")
+    except Exception as e:
+        print(f"[ERROR INESPERADO]: {e}")
 
-        print(sala.describir())
-        print(f"Costo total: ${sala.calcular_costo():,.2f}")
-
-        # 3. ALQUILER DE EQUIPOS
-        print("\n--- 3. ALQUILER DE EQUIPOS ---")
-
-        alquiler = AlquilerEquipo(
-            nombre="Computadores portátiles",
-            tarifa_base=15000,
-            dias=2,
-            cantidad=5
+    # CASO DE ERROR 3: Nivel de experto no autorizado en Asesoría Especializada
+    print("\n--- ERROR 3: Asesoría con nivel de experto no válido ---")
+    try:
+        asesoria_invalida = AsesoriaEspecializada(
+            nombre="Consultoría en Ciberseguridad",
+            tarifa_base=60000,
+            nivel_experto="master_expert",  # Solo permite junior, semi-senior, senior
+            horas=4
         )
+    except ParametroInvalidoException as pie:
+        print(f"[EXCEPCIÓN CAPTURADA EXITOSAMENTE]: {pie}")
+        registrar_error(f"Simulación Error 3: {pie}")
+    except Exception as e:
+        print(f"[ERROR INESPERADO]: {e}")
 
-        print(alquiler.describir())
-        print(f"Costo total: ${alquiler.calcular_costo():,.2f}")
+    # CASO DE ERROR 4: Intentar procesar pago de una reserva previamente cancelada
+    print("\n--- ERROR 4: Intento de cobro sobre una reserva CANCELADA ---")
+    try:
+        cliente_res = Cliente("9876543210", "Ana Gomez", "ana.gomez@example.com")
+        sala_res = ReservaSala("Sala Ejecutiva", 40000, 8, 2)
+        reserva_cancelada = Reserva("RES-101", cliente_res, sala_res)
+        reserva_cancelada.cancelar()
+        # Se intenta procesar cobro de la reserva cancelada
+        reserva_cancelada.procesar(descuento=0.05)
+    except ReservaInvalidaException as rie:
+        print(f"[EXCEPCIÓN CAPTURADA EXITOSAMENTE]: {rie}")
+        registrar_error(f"Simulación Error 4: {rie}")
+    except Exception as e:
+        print(f"[ERROR INESPERADO]: {e}")
 
-        # 4. ASESORÍA ESPECIALIZADA
-        print("\n--- 4. ASESORÍA ESPECIALIZADA ---")
-
-        asesoria = AsesoriaEspecializada(
-            nombre="Consultoría en Telecomunicaciones",
-            tarifa_base=50000,
-            nivel_experto="senior",
-            horas=2
-        )
-
-        print(asesoria.describir())
-        print(f"Costo total: ${asesoria.calcular_costo():,.2f}")
-
-        # 5. PRUEBA DE DESCUENTOS
-        print("\n--- 5. APLICACIÓN DE DESCUENTOS ---")
-
-        costo_descuento = asesoria.calcular_costo(descuento=0.10)
-
-        print(f"Costo con descuento del 10%: ${costo_descuento:,.2f}")
-
-        registrar_evento("Pruebas principales ejecutadas correctamente.")
-
-    except SoftwareFJException as error:
-        print(f"\nERROR CONTROLADO: {error}")
-        registrar_error(str(error))
-
-    except Exception as error:
-        print(f"\nERROR INESPERADO: {error}")
-        registrar_error(str(error))
+    # CASO DE ERROR 5: Confirmar una reserva que ya se encontraba CONFIRMADA
+    print("\n--- ERROR 5: Doble confirmación de reserva ya activa ---")
+    try:
+        reserva_doble = Reserva("RES-202", cliente, sala)
+        reserva_doble.confirmar()
+        # Se intenta confirmar por segunda vez
+        reserva_doble.confirmar()
+    except ReservaInvalidaException as rie:
+        print(f"[EXCEPCIÓN CAPTURADA EXITOSAMENTE]: {rie}")
+        registrar_error(f"Simulación Error 5: {rie}")
+    except Exception as e:
+        print(f"[ERROR INESPERADO]: {e}")
 
     finally:
         print("\n" + "=" * 65)
-        print(" FINALIZACIÓN DE LAS PRUEBAS DEL SISTEMA")
+        print(" FINALIZACIÓN TOTAL DE LAS PRUEBAS (10 DE 10 CASOS COMPLETADOS)")
         print("=" * 65)
 
 
 # PUNTO DE ENTRADA DEL PROGRAMA
 if __name__ == "__main__":
     main()
-    
