@@ -479,7 +479,6 @@ def main():
     # ------------------------------------------------------------
     print("\n" + "=" * 65)
     print(" SIMULACIONES DE ERROR Y VALIDACIÓN DE EXCEPCIONES")
-    print(" APORTE INDIVIDUAL: HÉCTOR JULIO ACOSTA CORTÉS (Jturing589)")
     print("=" * 65)
 
     # CASO DE ERROR 1: Correo electrónico inválido (falta de formato / arroba)
