@@ -1,0 +1,20 @@
+2026-11-17 21:16:01,695 - INFO - Cliente creado exitosamente: Carlos Perez (Doc: 1234567890)
+2026-11-17 21:16:01,696 - INFO - Pruebas principales ejecutadas correctamente.
+2026-11-17 21:16:01,696 - INFO - Reserva RES-999 confirmada con éxito para Carlos Perez.
+2026-11-17 21:16:01,696 - INFO - Fin de proceso de confirmación para RES-999.
+2026-11-17 21:16:01,696 - INFO - Cálculo financiero exitoso para RES-999. Total: $187425.0
+2026-11-17 21:16:01,696 - INFO - Cierre de auditoría financiera para RES-999.
+2026-11-17 21:16:01,696 - ERROR - Fallo al asignar correo: correo_invalido_sin_arroba.com
+2026-11-17 21:16:01,697 - ERROR - Simulación Error 1: El correo debe incluir '@' y un dominio válido (ej. '.com').
+2026-11-17 21:16:01,697 - ERROR - Simulación Error 2: Las horas reservadas deben ser un entero mayor a 0.
+2026-11-17 21:16:01,697 - ERROR - Simulación Error 3: Nivel de experto inválido. Debe ser junior, senior o master.
+2026-11-17 21:16:01,697 - INFO - Cliente creado exitosamente: Ana Gomez (Doc: 9876543210)
+2026-11-17 21:16:01,697 - INFO - Reserva RES-101 cancelada correctamente.
+2026-11-17 21:16:01,697 - ERROR - Flujo de reserva inválido en RES-101: No se puede procesar pago de una reserva cancelada (RES-101).
+2026-11-17 21:16:01,697 - INFO - Cierre de auditoría financiera para RES-101.
+2026-11-17 21:16:01,697 - ERROR - Simulación Error 4: No se puede procesar pago de una reserva cancelada (RES-101).
+2026-11-17 21:16:01,697 - INFO - Reserva RES-202 confirmada con éxito para Carlos Perez.
+2026-11-17 21:16:01,698 - INFO - Fin de proceso de confirmación para RES-202.
+2026-11-17 21:16:01,698 - ERROR - Fallo al confirmar RES-202: La reserva RES-202 ya estaba confirmada previamente.
+2026-11-17 21:16:01,698 - INFO - Fin de proceso de confirmación para RES-202.
+2026-11-17 21:16:01,698 - ERROR - Simulación Error 5: La reserva RES-202 ya estaba confirmada previamente.

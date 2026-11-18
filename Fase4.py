@@ -8,7 +8,7 @@ DESCRIPCIÓN: Implementación completa en un solo archivo con POO avanzada,
 """
 
 
-
+#codigo creado por jose jimenez
 # IMPORTACIÓN DE MÓDULOS DEL SISTEMA
 
 
@@ -16,7 +16,7 @@ import logging                    # Módulo nativo para crear y escribir archivo
 from abc import ABC, abstractmethod # Módulo para definir Clases Abstractas y Métodos Obligatorios
 
 
-
+#codigo creado por jose jimenez
 
 # SECCIÓN 1: CONFIGURACIÓN DEL SISTEMA DE REGISTRO (LOGGER)
 
@@ -28,7 +28,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',  # Formato: Fecha y hora - Nivel - Mensaje
     encoding='utf-8'                                   # Soporte para caracteres especiales y tildes
 )
-
+#codigo creado por jose jimenez
 def registrar_evento(mensaje: str):
     "Escribe en el archivo de logs una confirmación de operación exitosa."
     logging.info(mensaje)
@@ -37,7 +37,7 @@ def registrar_error(mensaje: str):
     "Escribe en el archivo de logs una alerta de error o fallo atrapado."
     logging.error(mensaje)
 
-
+#codigo creado por jose jimenez
 
 # SECCIÓN 2: JERARQUÍA DE EXCEPCIONES PERSONALIZADAS
 
@@ -57,7 +57,7 @@ class ReservaInvalidaException(SoftwareFJException):
     "Se dispara si el flujo de reservas o cobros no se hace en el orden permitido."
     pass
 
-
+#codigo creado por jose jimenez
 
 # SECCIÓN 3: CLASE CLIENTE (Encapsulamiento estricto de datos)
 # SECCIÓN 3: CLASE ABSTRACTA ENTIDAD
@@ -72,7 +72,7 @@ class Entidad(ABC):
     def mostrar_datos(self) -> str:
         """Obliga a las clases hijas a presentar sus datos."""
         pass
-
+#codigo creado por jose jimenez dejando evidencia en la rama
 
 # SECCIÓN 4: CLASE CLIENTE (Encapsulamiento y herencia)
 class Cliente(Entidad):
@@ -86,10 +86,10 @@ class Cliente(Entidad):
         self.set_documento(documento)
         self.set_nombre(nombre)
         self.set_correo(correo)
-
+#codigo creado por jose jimenez dejando evidencia en la rama
         # 3. Guardamos la creación del cliente en la bitácora
         registrar_evento(f"Cliente creado exitosamente: {self.__nombre} (Doc: {self.__documento})")
-
+#codigo creado por jose jimenez dejando evidencia en la rama
     # --- MÉTODOS GETTER (Permiten leer el valor privado desde afuera de la clase) ---
     def get_documento(self) -> str:
         "Retorna el número de documento del cliente."
@@ -102,7 +102,7 @@ class Cliente(Entidad):
     def get_correo(self) -> str:
         "Retorna el correo electrónico del cliente."
         return self.__correo
-
+#codigo creado por jose jimenez dejando evidencia en la rama
     # --- MÉTODOS SETTER (Permiten asignar y cambiar el valor aplicando validaciones) ---
     def set_documento(self, documento: str):
         "Asigna el documento sólo si pasa la validación numérica."
@@ -110,31 +110,31 @@ class Cliente(Entidad):
             registrar_error(f"Fallo al asignar documento: {documento}")
             raise ClienteInvalidoException("El documento debe contener sólo números (entre 6 y 12 dígitos).")
         self.__documento = str(documento).strip()
-
+#codigo creado por jose jimenez dejando evidencia en la rama
     def set_nombre(self, nombre: str):
         "Asigna el nombre sólo si no contiene números ni está en blanco."
         if not self.validar_nombre(nombre):
             registrar_error(f"Fallo al asignar nombre: {nombre}")
             raise ClienteInvalidoException("El nombre no puede estar vacío ni contener números.")
         self.__nombre = nombre.strip()
-
+#codigo creado por jose jimenez dejando evidencia en la rama
     def set_correo(self, correo: str):
         "Asigna el correo sólo si contiene estructura de email válida."
         if not self.validar_correo(correo):
             registrar_error(f"Fallo al asignar correo: {correo}")
             raise ClienteInvalidoException("El correo debe incluir '@' y un dominio válido (ej. '.com').")
         self.__correo = correo.strip()
-
+#codigo creado por jose jimenez dejando evidencia en la rama
     # MÉTODOS DE VALIDACIÓN 
     def validar_documento(self, documento: str) -> bool:
         "Verifica que el dato sean puros dígitos y tenga un rango de longitud real."
         doc = str(documento).strip()
         return doc.isdigit() and 6 <= len(doc) <= 12
-
+#codigo creado por jose jimenez dejando evidencia en la rama
     def validar_nombre(self, nombre: str) -> bool:
         "Verifica que el nombre tenga caracteres alfabéticos (sin números)."
         return bool(nombre and isinstance(nombre, str) and nombre.replace(" ", "").isalpha())
-
+#codigo creado por jose jimenez dejando evidencia en la rama
     def validar_correo(self, correo: str) -> bool:
         "Verifica que el correo tenga un '@' y un punto después del '@'."
         return bool(correo and "@" in correo and "." in correo.split("@")[-1])
@@ -144,7 +144,7 @@ class Cliente(Entidad):
         "Genera una cadena con los datos del cliente formateados."
         return f"Cliente: {self.__nombre} | C.C: {self.__documento} | Email: {self.__correo}"
 
-
+#codigo complementado por jose jimenez dejando evidencia en la rama
 
 # SECCIÓN 4: JERARQUÍA DE SERVICIOS (Abstracción, Herencia y Polimorfismo)
 
@@ -160,7 +160,7 @@ class Servicio(ABC):
     def calcular_costo(self, descuento: float = 0.0, impuesto: float = 0.19) -> float:
         "Método abstracto: obliga a cada clase hija a implementar su propia fórmula de cobro."
         pass
-
+#codigo complementado por jose jimenez dejando evidencia en la rama
     @abstractmethod
     def describir(self) -> str:
         "Método abstracto: obliga a cada clase hija a describirse textualmente."
@@ -173,7 +173,7 @@ class Servicio(ABC):
             raise ParametroInvalidoException("El nombre del servicio no es válido.")
         if not isinstance(self.tarifa_base, (int, float)) or isinstance(self.tarifa_base, bool) or self.tarifa_base <= 0:
             raise ParametroInvalidoException("La tarifa base debe ser un valor numérico positivo mayor a cero.")
-
+#codigo complementado por jose jimenez dejando evidencia en la rama
 
 # 2. Clase Hija 1: Reserva de Salas
 class ReservaSala(Servicio):
@@ -183,15 +183,15 @@ class ReservaSala(Servicio):
         # super().__init__ envía el nombre y la tarifa al constructor del padre (Servicio)
         super().__init__(nombre, tarifa_base)
 
-    
+#codigo complementado por jose jimenez dejando evidencia en la rama  
     def validar_parametros(self):
         # Valida primero las reglas del padre
         super().validar_parametros()
-
+#codigo complementado por jose jimenez dejando evidencia en la rama
         # Valida que la capacidad sea un entero positivo
         if not isinstance(self.capacidad, int) or isinstance(self.capacidad, bool) or self.capacidad <= 0:
             raise ParametroInvalidoException("La capacidad de la sala debe ser un entero mayor a 0 personas.")
-
+#codigo complementado por jose jimenez dejando evidencia en la rama
         # Valida que las horas sean un entero positivo
         if not isinstance(self.horas, int) or isinstance(self.horas, bool) or self.horas <= 0:
             raise ParametroInvalidoException("Las horas reservadas deben ser un entero mayor a 0.")
@@ -202,7 +202,7 @@ class ReservaSala(Servicio):
         
             
         
-        
+    #codigo complementado por jose jimenez dejando evidencia en la rama    
 
     def calcular_costo(self, descuento: float = 0.0, impuesto: float = 0.19) -> float:
         # Polimorfismo: cobra las horas base más un suplemento de $5.000 por cada persona
@@ -214,7 +214,7 @@ class ReservaSala(Servicio):
     def describir(self) -> str:
         return f"Reserva de Sala '{self.nombre}' para {self.capacidad} personas por {self.horas} hora(s)."
 
-
+#codigo complementado por jose jimenez dejando evidencia en la rama
 # 3. Clase Hija 2: Alquiler de Equipos
 class AlquilerEquipo(Servicio):
     def __init__(self, nombre: str, tarifa_base: float, dias: int, cantidad: int):
@@ -222,7 +222,7 @@ class AlquilerEquipo(Servicio):
         self.cantidad = cantidad  # Cantidad de computadores o dispositivos
         super().__init__(nombre, tarifa_base)
 
-    
+    #codigo complementado por jose jimenez dejando evidencia en la rama
     def validar_parametros(self):
         # Valida primero las reglas de la clase padre
         super().validar_parametros()
@@ -236,7 +236,7 @@ class AlquilerEquipo(Servicio):
             raise ParametroInvalidoException("La cantidad de equipos debe ser un entero mayor a cero.")
 
         
-        
+        #codigo complementado por jose jimenez dejando evidencia en la rama
             
 
     def calcular_costo(self, descuento: float = 0.0, impuesto: float = 0.19) -> float:
@@ -248,7 +248,7 @@ class AlquilerEquipo(Servicio):
     def describir(self) -> str:
         return f"Alquiler de {self.cantidad} unidad(es) de '{self.nombre}' por {self.dias} día(s)."
 
-
+#codigo complementado por jose jimenez dejando evidencia en la rama
 # 4. Clase Hija 3: Asesoría Especializada
 class AsesoriaEspecializada(Servicio):
     
@@ -261,7 +261,7 @@ class AsesoriaEspecializada(Servicio):
         super().__init__(nombre, tarifa_base)
 
         
-    
+    #codigo complementado por jose jimenez dejando evidencia en la rama
 
         
 
@@ -277,7 +277,7 @@ class AsesoriaEspecializada(Servicio):
         if self.nivel_experto not in ["junior", "senior", "master"]:
             raise ParametroInvalidoException("Nivel de experto inválido. Debe ser junior, senior o master.")
 
-
+#codigo complementado por jose jimenez dejando evidencia en la rama
     
         
         
